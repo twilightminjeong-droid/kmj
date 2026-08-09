@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>골프존 닉네임 생성기</title>
+    <title>골프존 닉네임 생성기 최종본</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -22,37 +22,64 @@
             border-radius: 20px;
             padding: 35px 25px;
             width: 100%;
-            max-width: 450px;
+            max-width: 480px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         h1 { color: #d4af37; font-size: 24px; margin-bottom: 8px; }
         p.subtitle { color: #a0aab0; font-size: 14px; margin-bottom: 25px; }
+        
         .mode-group {
-            display: grid; grid-template-columns: repeat(2, 1fr);
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr);
             gap: 10px; margin-bottom: 20px;
         }
+        
         .btn-mode {
             background-color: #2a342c; color: #e0e0e0;
-            border: 1px solid #3d4a3f; padding: 12px;
-            border-radius: 10px; font-size: 14px;
+            border: 1px solid #3d4a3f; padding: 10px;
+            border-radius: 10px; font-size: 13px;
             font-weight: bold; cursor: pointer; transition: all 0.2s ease;
         }
         .btn-mode.active, .btn-mode:hover {
             background-color: #d4af37; color: #121813; border-color: #d4af37;
         }
+
+        .btn-mode.random-btn {
+            grid-column: span 3;
+            background-color: #3d4a3f;
+        }
+        .btn-mode.random-btn:hover {
+            background-color: #d4af37;
+        }
+
         .btn-generate {
             background: linear-gradient(135deg, #2e7d32, #1b5e20); color: #ffffff;
             border: none; width: 100%; padding: 16px;
             font-size: 18px; font-weight: bold; border-radius: 12px;
             cursor: pointer; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+            transition: transform 0.1s;
         }
         .btn-generate:active { transform: scale(0.98); }
+        
         .result-box {
             background-color: #0b0f0c; border: 1px dashed #d4af37;
             border-radius: 12px; padding: 25px 15px; margin-top: 25px;
         }
-        #nicknameDisplay { font-size: 22px; font-weight: bold; min-height: 32px; }
+        
+        #nicknameDisplay { 
+            font-size: 24px; font-weight: bold; min-height: 36px; color: #ffffff; 
+        }
+
+        /* 닉네임 생성 시 부드럽게 나타나는 애니메이션 효과 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-anim {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
         .btn-copy {
             margin-top: 15px; background-color: transparent; color: #d4af37;
             border: 1px solid #d4af37; padding: 8px 16px; border-radius: 6px;
@@ -64,13 +91,16 @@
 <body>
     <div class="container">
         <h1>⛳ GOLFZON NICKNAME</h1>
-        <p class="subtitle">원하는 컨셉을 선택하고 닉네임을 생성해보세요!</p>
+        <p class="subtitle">나만의 특별한 컨셉으로 골프존 닉네임을 완성하세요!</p>
 
         <div class="mode-group">
             <button class="btn-mode active" onclick="selectMode('humor', this)">😂 유머</button>
             <button class="btn-mode" onclick="selectMode('luxury', this)">👑 럭셔리</button>
             <button class="btn-mode" onclick="selectMode('funny', this)">🤪 B급병맛</button>
-            <button class="btn-mode" onclick="selectMode('all', this)">🎲 랜덤</button>
+            <button class="btn-mode" onclick="selectMode('finance', this)">📈 재테크</button>
+            <button class="btn-mode" onclick="selectMode('animal', this)">🦦 오피스동물</button>
+            <button class="btn-mode" onclick="selectMode('satoori', this)">🗣️ 사투리</button>
+            <button class="btn-mode random-btn" onclick="selectMode('all', this)">🎲 아무거나 랜덤 샷!</button>
         </div>
 
         <button class="btn-generate" onclick="generateNickname()">닉네임 샷! 🏌️‍♂️</button>
@@ -84,11 +114,14 @@
     <script>
         let currentMode = 'humor';
         
-        // 데이터베이스 수정 가능: 이곳에 원하는 단어를 자유롭게 추가해 보세요.
+        // 최종 완성된 데이터베이스 (카테고리별 단어 최적화)
         const nicknameDB = {
             humor: { adj: ['OB전문', '양파먹는', '막걸리파워', '해저드수집가', '땅볼전문'], noun: ['백돌이', '골린이', '민폐왕', '알바생', '퍼팅바보'] },
             luxury: { adj: ['명품스윙', '클럽하우스', '프라이빗', '싱글의', '페어웨이'], noun: ['마스터', '프로', '버디킹', '챔피언', 'VIP'] },
-            funny: { adj: ['연습장만', '지갑털린', '캐디눈물', '주말에만', '풀스윙'], noun: ['타이거우즈선배', '프로지망생', '회장님', '명예회원'] }
+            funny: { adj: ['연습장만', '지갑털린', '캐디눈물', '주말에만', '풀스윙'], noun: ['타이거우즈선배', '프로지망생', '회장님', '명예회원'] },
+            finance: { adj: ['자산배분', '우상향', '익절하는', '풀매수', '비과세'], noun: ['설계사', '플래너', '주주', '투자자', '개미'] },
+            animal: { adj: ['야근하는', '칼퇴하는', '결재받는', '엑셀치는', '월루하는'], noun: ['수달', '카피바라', '물개', '비버', '사자'] },
+            satoori: { adj: ['단디치는', '억수로잘하는', '깔롱진', '까리한', '쌔리패는'], noun: ['행님', '마!', '쫌!', '언니야', '머스마'] }
         };
 
         function selectMode(mode, element) {
@@ -97,13 +130,22 @@
             element.classList.add('active');
         }
 
-        // 배열 길이 안에서 무작위 숫자를 뽑아내는 핵심 추론 로직입니다.
         function getRandomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
         function generateNickname() {
-            let activeMode = currentMode === 'all' ? getRandomItem(['humor', 'luxury', 'funny']) : currentMode;
+            let activeMode = currentMode === 'all' 
+                ? getRandomItem(['humor', 'luxury', 'funny', 'finance', 'animal', 'satoori']) 
+                : currentMode;
+                
             const data = nicknameDB[activeMode];
-            document.getElementById('nicknameDisplay').innerText = `${getRandomItem(data.adj)} ${getRandomItem(data.noun)}`;
+            const displayEl = document.getElementById('nicknameDisplay');
+            
+            // 애니메이션 재시작을 위한 마법의 코드 (Reflow)
+            displayEl.classList.remove('fade-in-anim');
+            void displayEl.offsetWidth; 
+            
+            displayEl.innerText = `${getRandomItem(data.adj)} ${getRandomItem(data.noun)}`;
+            displayEl.classList.add('fade-in-anim');
         }
 
         function copyToClipboard() {
