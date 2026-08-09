@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>골프존 닉네임 생성기</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+            background-color: #121813;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: linear-gradient(145deg, #1e2620, #161d18);
+            border: 1px solid #d4af37;
+            border-radius: 20px;
+            padding: 35px 25px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+
+        h1 {
+            color: #d4af37;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: #a0aab0;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .mode-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn-mode {
+            background-color: #2a342c;
+            color: #e0e0e0;
+            border: 1px solid #3d4a3f;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-mode.active, .btn-mode:hover {
+            background-color: #d4af37;
+            color: #121813;
+            border-color: #d4af37;
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            color: #ffffff;
+            border: none;
+            width: 100%;
+            padding: 16px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
+            transition: transform 0.1s, background 0.3s;
+        }
+
+        .btn-generate:active {
+            transform: scale(0.98);
+        }
+
+        .result-box {
+            background-color: #0b0f0c;
+            border: 1px dashed #d4af37;
+            border-radius: 12px;
+            padding: 25px 15px;
+            margin-top: 25px;
+        }
+
+        #nicknameDisplay {
+            font-size: 22px;
+            font-weight: bold;
+            color: #ffffff;
+            min-height: 32px;
+            word-break: keep-all;
+        }
+
+        .btn-copy {
+            margin-top: 15px;
+            background-color: transparent;
+            color: #d4af37;
+            border: 1px solid #d4af37;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            background-color: #d4af37;
+            color: #121813;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>⛳ GOLFZON NICKNAME</h1>
+        <p class="subtitle">원하는 컨셉을 선택하고 닉네임을 생성해보세요!</p>
+
+        <div class="mode-group">
+            <button class="btn-mode active" onclick="selectMode('humor', this)">😂 유머</button>
+            <button class="btn-mode" onclick="selectMode('luxury', this)">👑 럭셔리</button>
+            <button class="btn-mode" onclick="selectMode('funny', this)">🤪 B급병맛</button>
+            <button class="btn-mode" onclick="selectMode('all', this)">🎲 랜덤</button>
+        </div>
+
+        <button class="btn-generate" onclick="generateNickname()">닉네임 샷! 🏌️‍♂️</button>
+
+        <div class="result-box">
+            <div id="nicknameDisplay">버튼을 눌러주세요</div>
+            <button class="btn-copy" onclick="copyToClipboard()">📋 복사하기</button>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'humor';
+
+        const nicknameDB = {
+            humor: {
+                adj: ['OB전문', '양파먹는', '막걸리파워', '해저드수집가', '슬라이스장인', '카트운전수', '멀리건요청', '땅볼전문'],
+                noun: ['백돌이', '골린이', '민폐왕', '알바생', '퍼팅바보', '3자골프', '벙커신기록', '드라이버배달원']
+            },
+            luxury: {
+                adj: ['명품스윙', '클럽하우스', '프라이빗', '싱글의', '페어웨이', '황금티샷', '완벽한', '골프황제'],
+                noun: ['마스터', '프로', '버디킹', '챔피언', '레전드', '오너', '이글가이', 'VIP']
+            },
+            funny: {
+                adj: ['연습장만', '지갑털린', '캐디눈물', '장비만프로', '주말에만', '스코어조작', '풀스윙'],
+                noun: ['타이거우즈선배', '프로지망생', '골프천재', '회장님', '명예회원', '신동', '사장님']
+            }
+        };
+
+        function selectMode(mode, element) {
+            currentMode = mode;
+            const buttons = document.querySelectorAll('.btn-mode');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function getRandomItem(arr) {
+            return arr[Math.floor(Math.random() * arr.length)];
+        }
+
+        function generateNickname() {
+            let activeMode = currentMode;
+
+            if (currentMode === 'all') {
+                const modes = ['humor', 'luxury', 'funny'];
+                activeMode = getRandomItem(modes);
+            }
+
+            const categoryData = nicknameDB[activeMode];
+            const randomAdj = getRandomItem(categoryData.adj);
+            const randomNoun = getRandomItem(categoryData.noun);
+
+            const resultText = `${randomAdj} ${randomNoun}`;
+            document.getElementById('nicknameDisplay').innerText = resultText;
+        }
+
+        function copyToClipboard() {
+            const textToCopy = document.getElementById('nicknameDisplay').innerText;
+
+            if (textToCopy === '버튼을 눌러주세요' || !textToCopy) {
+                alert('먼저 닉네임을 생성해 주세요!');
+                return;
+            }
+
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                alert(`'${textToCopy}' 복사 완료! 골프존에 붙여넣으세요.`);
+            }).catch(err => {
+                console.error('복사 실패:', err);
+            });
+        }
+    </script>
+</body>
+</html>
