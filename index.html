@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>골프존 닉네임 생성기 MAX</title>
+    <title>골프존 닉네임 생성기 Light MAX</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
-            background-color: #0f1215; /* 삼성헬스 느낌의 딥 다크 모드 배경 */
-            color: #ffffff;
+            background-color: #f4f7f6;
+            color: #191c1a;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -17,43 +17,36 @@
             padding: 20px;
         }
         .container {
-            background: linear-gradient(145deg, #181c22, #12151a);
-            border: 1px solid rgba(0, 210, 150, 0.2); /* 삼성헬스 시그니처 민트 포인트 테두리 */
+            background: #ffffff;
+            border: 1px solid #e1e8e3;
             border-radius: 24px;
             padding: 35px 25px;
             width: 100%;
             max-width: 480px;
             text-align: center;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+            box-shadow: 0 10px 30px rgba(0, 168, 107, 0.08);
         }
-        h1 { 
-            color: #00d296; /* 삼성헬스 시그니처 민트 컬러 */
-            font-size: 24px; 
-            margin-bottom: 8px; 
-            letter-spacing: -0.5px;
-        }
-        p.subtitle { color: #8c98a4; font-size: 14px; margin-bottom: 25px; }
+        h1 { color: #00a86b; font-size: 24px; margin-bottom: 8px; letter-spacing: -0.5px; }
+        p.subtitle { color: #5a6660; font-size: 14px; margin-bottom: 22px; }
         
-        /* 무한 생성 토글 스위치 박스 */
         .infinite-toggle-box {
-            background-color: #12151a;
-            border: 1px solid #242c38;
+            background-color: #f0f7f4;
+            border: 1px solid #d0e4dc;
             border-radius: 14px;
             padding: 12px 18px;
-            margin-bottom: 22px;
+            margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         .infinite-label {
             font-size: 13px;
-            color: #00d296;
+            color: #00a86b;
             font-weight: bold;
             display: flex;
             align-items: center;
             gap: 6px;
         }
-        /* 삼성헬스 스타일 토글 스위치 커스텀 디자인 */
         .switch {
             position: relative;
             display: inline-block;
@@ -64,20 +57,20 @@
         .slider {
             position: absolute; cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #242c38;
+            background-color: #ccd6d0;
             transition: .3s;
             border-radius: 26px;
-            border: 1px solid #323d4e;
         }
         .slider:before {
             position: absolute; content: "";
             height: 20px; width: 20px;
-            left: 2px; bottom: 2px;
+            left: 3px; bottom: 3px;
             background-color: #ffffff;
             transition: .3s;
             border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
         }
-        input:checked + .slider { background-color: #00d296; border-color: #00d296; }
+        input:checked + .slider { background-color: #00a86b; }
         input:checked + .slider:before { transform: translateX(22px); }
 
         .mode-group {
@@ -87,89 +80,88 @@
         }
         
         .btn-mode {
-            background-color: #1a2028; 
-            color: #b0bac5;
-            border: 1px solid #2a3442; 
-            padding: 12px 8px;
-            border-radius: 14px; 
-            font-size: 13px;
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: all 0.25s ease;
+            background-color: #f4f7f5; color: #404b46;
+            border: 1px solid #dce5e0; padding: 12px 8px;
+            border-radius: 12px; font-size: 13px;
+            font-weight: 600; cursor: pointer; transition: all 0.2s ease;
         }
         .btn-mode:hover {
-            background-color: #242c38; 
-            color: #ffffff; 
-            border-color: #00d296;
+            background-color: #eaf3ee; color: #191c1a; border-color: #b8d4c8;
         }
-        /* 활성화 상태: 삼성헬스 스타일 민트 테두리 & 배경 포인트 */
         .btn-mode.active {
-            background: linear-gradient(135deg, rgba(0, 210, 150, 0.15), rgba(0, 210, 150, 0.05));
-            color: #00d296; 
-            border-color: #00d296;
-            box-shadow: 0 0 12px rgba(0, 210, 150, 0.2);
+            background: #e2f4ed;
+            color: #00a86b; 
+            border-color: #00a86b;
+            box-shadow: 0 0 8px rgba(0, 168, 107, 0.15);
         }
 
         .btn-mode.random-btn {
             grid-column: span 3;
-            background-color: #202834;
+            background-color: #eaf3ee;
             font-size: 15px;
             padding: 14px;
-            color: #ffffff;
-            border: 1px solid #323d4e;
+            color: #2b3631;
+            border: 1px solid #cce2d8;
         }
         .btn-mode.random-btn:hover, .btn-mode.random-btn.active {
-            background: linear-gradient(135deg, #00d296, #00a876);
-            color: #0f1215;
-            border-color: #00d296;
+            background: #00a86b;
+            color: #ffffff;
+            border-color: #00a86b;
             font-weight: bold;
         }
 
         .btn-generate {
-            background: linear-gradient(135deg, #00d296, #00996c); 
-            color: #0f1215;
+            background: linear-gradient(135deg, #00a86b, #008553); color: #ffffff;
             border: none; width: 100%; padding: 16px;
-            font-size: 17px; font-weight: bold; border-radius: 16px;
-            cursor: pointer; box-shadow: 0 6px 20px rgba(0, 210, 150, 0.35);
+            font-size: 17px; font-weight: bold; border-radius: 14px;
+            cursor: pointer; box-shadow: 0 6px 18px rgba(0, 168, 107, 0.25);
             transition: transform 0.1s, opacity 0.2s;
         }
         .btn-generate:active { transform: scale(0.98); }
         .btn-generate:hover { opacity: 0.92; }
         
         .result-box {
-            background-color: #12151a; 
-            border: 1px solid #242c38;
+            background-color: #f8fcfb; border: 1px solid #dce5e0;
             border-radius: 16px; padding: 25px 15px; margin-top: 22px;
         }
         
         #nicknameDisplay { 
-            font-size: 26px; font-weight: bold; min-height: 40px; color: #ffffff; 
+            font-size: 26px; font-weight: bold; min-height: 40px; color: #191c1a; 
             letter-spacing: 1.5px;
+            word-break: keep-all;
         }
 
         @keyframes slotSpin {
-            0% { opacity: 0.4; transform: scale(0.95); filter: blur(1px); }
+            0% { opacity: 0.4; transform: scale(0.96); filter: blur(1px); }
             50% { opacity: 1; transform: scale(1.02); filter: blur(0px); }
-            100% { opacity: 0.4; transform: scale(0.95); filter: blur(1px); }
+            100% { opacity: 0.4; transform: scale(0.96); filter: blur(1px); }
         }
         .slot-anim {
             animation: slotSpin 0.08s infinite alternate;
-            color: #00d296 !important;
+            color: #00a86b !important;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in-anim {
+            animation: fadeIn 0.3s ease-out forwards;
         }
 
         .btn-copy {
-            margin-top: 15px; background-color: transparent; color: #00d296;
-            border: 1px solid #00d296; padding: 8px 18px; border-radius: 8px;
+            margin-top: 15px; background-color: transparent; color: #00a86b;
+            border: 1px solid #00a86b; padding: 8px 18px; border-radius: 8px;
             cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s;
         }
-        .btn-copy:hover { background-color: rgba(0, 210, 150, 0.1); }
+        .btn-copy:hover { background-color: #e2f4ed; }
 
         .footer-credit {
             margin-top: 22px;
             font-size: 12px;
-            color: #586370;
-            letter-spacing: 1px;
-            border-top: 1px solid #1a2028;
+            color: #72807a;
+            letter-spacing: 0.5px;
+            border-top: 1px solid #e1e8e3;
             padding-top: 15px;
         }
     </style>
@@ -177,9 +169,8 @@
 <body>
     <div class="container">
         <h1>⛳ GOLFZON NICKNAME</h1>
-        <p class="subtitle">5자 이내, 띄어쓰기 없는 유니크한 닉네임!</p>
+        <p class="subtitle">3~7자 이내, 띄어쓰기 없는 유니크한 닉네임!</p>
 
-        <!-- 무한 생성 모드 토글 바 -->
         <div class="infinite-toggle-box">
             <span class="infinite-label">🔄 무한 슬롯머신 모드</span>
             <label class="switch">
@@ -215,25 +206,44 @@
         let isInfiniteRunning = false;
         let infiniteTimer = null;
         
-        // 최근 생성된 닉네임 30회 중복 방지 메모리 배열
-        let recentNicknames = [];
-        const MAX_HISTORY_SIZE = 30;
-
-        // 흔한 닉네임을 대폭 배제하고 유니크하고 세련된 단어들로 구성된 데이터베이스 (5자 이내, 띄어쓰기 없음)
+        // 3~7자 이내, 띄어쓰기 없음, 대규모 확장된 닉네임 데이터베이스 (모든 카테고리별 풍부한 풀)
         const nicknameDB = {
-            pro: ['템포유령', '클럽피팅', '에임테크', '탄도조절', '백스핀러', '클러치샷', '스윙아키', '레이저온', '볼스트릭'],
-            humor: ['잔디삭막', '파지팡이', '해저드너', ' OB단골', '양파수집', '그린무법', '볼도둑놈', '뒤땅마왕', '허공스윙'],
-            skilled: ['이글헌터', '언더파러', '니어지존', '홀인원러', '핀포인트', '퍼트도사', '버디기계', '샷테크닉', '드라이버'],
-            short: ['제우스', '포세이', '아이언', '타이탄', '스톰프', '매버릭', '스파크', '소닉샷', '볼텍스', '제니스'],
-            luck: ['트리플', '세븐팟', '클로버', '골드러', '럭키온', '알바트로', '기적샷', '대박찬스', '행운팟'],
+            pro: [
+                '로리맥킬로', '타이거우즈', '존람스윙', '박세리키즈', '스피스퍼트', '켑카파워', '셰플러샷', '디섐보드론', '모리카와',
+                '에임라인', '탄도조절', '백스핀러', '클러치온', '레이저온', '스윙아티', '핀헌터', '그린정복', '에이스샷', '이글헌터',
+                '클럽피팅', '템포유령', '제우스', '타이거즈', '메이저왕', '프로스윙', '비거리신', '완벽한샷', '샷마스터', '필드의신'
+            ],
+            humor: [
+                '양파요정', '잔디파괴', '벙커귀신', '오비탈출', '명랑골퍼', '뒤땅장인', '해저드맨', '카트요정', '골프환자', 'OB단골', 
+                '허공스윙', '스코어조', '멘탈붕괴', '보기플레이', '벌타수집', '생크유령', '백돌탈출', '그린지옥', '슬라이서', '훅쟁이',
+                '쓰리팟킹', '양파제조', '공잃어버림', '나무맞춤', '공찾는중', '연습부족', '내기패배', '지갑털림', '멘탈가출', '티샷OB'
+            ],
+            skilled: [
+                '버디머신', '싱글메이커', '언더파러', '홀인원맨', '퍼팅신', '아이언신', '장타왕', '샷의귀재', '니어지존', '정교한볼', 
+                '백스핀신', '고스트샷', '퍼트도사', '파세이버', '이글메이커', '니어리스트', '롱기스트', '레전드샷', '신의한수', '철갑멘탈',
+                '정밀타격', '핀에쏙쏙', '버디사냥', '퍼팅달인', '샷건지존', '스크린왕', '언더파지존', '홀인원러', '퍼트천재', '아이언박사'
+            ],
+            short: [
+                '독사', '원빳', '투온', '장타', '불도저', '탱크', '송곳', '레이저', '직진', '원샷', 
+                '비기너', '불꽃', '스톰', '샤크', '타이탄', '불꽃슛', '핵폭탄', '쏜살같이', '일격필살', '번개샷',
+                '철벽방어', '질주본능', '돌격대장', '사막여우', '들소처럼', '바람처럼', '화살촉', '태풍의눈', '마음속돌', '강철심장'
+            ],
+            luck: [
+                '럭키골퍼', '네잎클로', '행운의샷', '럭키세븐', '대박샷', '기적퍼트', '행운만땅', '알바트로', '골드러시', '찬스메이', 
+                '행운소환', '잭팟샷', '포춘쿠키', '대운의날', '황금티샷', '행운의신', '기적의볼', '대박기운', '행운열차', '복덩이샷',
+                '찬스도둑', '행운요정', '기적의선', '행운의별', '빛나는볼', '황금퍼트', '천운의샷', '행운폭탄', '대운폭발', '행운만땅'
+            ],
             dialect: [
-                '단디쳐라', '마파람', '쪼아쓰', '우째스노',
-                '거시기', '아따참', '워매소름', '허벌나',
-                '혼저옵', '한라샷', '도르라', '기막히',
-                '참거기', '나이스유', '천천히', '냅둬유',
-                '마카다', '강릉풍', '드래요'
+                '단디치라', '마풀스윙', '쫌드루와', '우짜꼬', '거시기샷', '아따나샷', '워매버디', '허벌타구',
+                '혼저옵서', '한라산버', '도르라샷', '무사경이', '괜찮아유', '나이스유', '천천히혀', '냅둬유',
+                '마카모여', '강릉독수', '드래요샷', '머시마야', '가시나야', '억수로마', '단디하자', '대단타이',
+                '허벌나게', '싸게싸게', '혼저합서', '느긋하게', '다부지게', '찰지게쳐'
             ]
         };
+
+        // 절대 중복을 방지하기 위한 전역 기록소 (모든 모드 통틀어 최근 생성된 닉네임들을 완벽히 추적)
+        let globalHistory = [];
+        const MAX_HISTORY_SIZE = 150; // 전체 풀의 방대한 양을 기억하여 무한 반복 원천 차단
 
         function selectMode(mode, element) {
             currentMode = mode;
@@ -246,21 +256,26 @@
             }
         }
 
-        // 30회 중복 방지 스마트 랜덤 추출 함수
         function getUniqueRandomItem(arr) {
-            let candidate = '';
-            let attempts = 0;
+            // 현재 모드의 전체 후보 중 아직 안 나온 후보들을 필터링
+            let availableItems = arr.filter(item => !globalHistory.includes(item));
             
-            do {
-                candidate = arr[Math.floor(Math.random() * arr.length)];
-                attempts++;
-                if (attempts > 50) break; 
-            } while (recentNicknames.includes(candidate));
+            // 만약 해당 모드의 모든 단어를 다 써버렸다면, 히스토리 중 반을 비워 순환시킴
+            if (availableItems.length === 0) {
+                globalHistory = globalHistory.slice(Math.floor(globalHistory.length / 2));
+                availableItems = arr.filter(item => !globalHistory.includes(item));
+            }
+            
+            // 그래도 없으면 전체 배열에서 랜덤 추출
+            if (availableItems.length === 0) {
+                availableItems = arr;
+            }
 
-            recentNicknames.push(candidate);
+            const candidate = availableItems[Math.floor(Math.random() * availableItems.length)];
             
-            if (recentNicknames.length > MAX_HISTORY_SIZE) {
-                recentNicknames.shift();
+            globalHistory.push(candidate);
+            if (globalHistory.length > MAX_HISTORY_SIZE) {
+                globalHistory.shift();
             }
 
             return candidate;
@@ -272,13 +287,13 @@
             
             if (toggle.checked) {
                 actionBtn.innerText = "정지 (STOP) ⏹️";
-                actionBtn.style.background = "linear-gradient(135deg, #ff5252, #d32f2f)";
-                actionBtn.style.boxShadow = "0 6px 20px rgba(255, 82, 82, 0.35)";
+                actionBtn.style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+                actionBtn.style.boxShadow = "0 6px 18px rgba(239, 68, 68, 0.25)";
                 startInfinite();
             } else {
                 actionBtn.innerText = "닉네임 샷! 🏌️‍♂️";
-                actionBtn.style.background = "linear-gradient(135deg, #00d296, #00996c)";
-                actionBtn.style.boxShadow = "0 6px 20px rgba(0, 210, 150, 0.35)";
+                actionBtn.style.background = "linear-gradient(135deg, #00a86b, #008553)";
+                actionBtn.style.boxShadow = "0 6px 18px rgba(0, 168, 107, 0.25)";
                 stopInfinite();
             }
         }
@@ -295,14 +310,16 @@
 
         function generateSingleNickname() {
             let activeMode = currentMode === 'all' 
-                ? getUniqueRandomItem(['pro', 'humor', 'skilled', 'short', 'luck', 'dialect']) 
+                ? ['pro', 'humor', 'skilled', 'short', 'luck', 'dialect'][Math.floor(Math.random() * 6)] 
                 : currentMode;
                 
             const displayEl = document.getElementById('nicknameDisplay');
-            displayEl.classList.remove('slot-anim');
+            displayEl.classList.remove('fade-in-anim');
+            void displayEl.offsetWidth; 
             
             const resultArray = nicknameDB[activeMode];
             displayEl.innerText = getUniqueRandomItem(resultArray);
+            displayEl.classList.add('fade-in-anim');
         }
 
         function startInfinite() {
@@ -312,7 +329,7 @@
             
             infiniteTimer = setInterval(() => {
                 let currentActiveMode = currentMode === 'all' 
-                    ? getUniqueRandomItem(['pro', 'humor', 'skilled', 'short', 'luck', 'dialect']) 
+                    ? ['pro', 'humor', 'skilled', 'short', 'luck', 'dialect'][Math.floor(Math.random() * 6)] 
                     : currentMode;
                 const activeArray = nicknameDB[currentActiveMode];
                 displayEl.innerText = getUniqueRandomItem(activeArray);
@@ -329,7 +346,7 @@
 
         function copyToClipboard() {
             const text = document.getElementById('nicknameDisplay').innerText;
-            if (text === '버튼을눌러요') return alert('먼저 닉네임을 생성해 주세요!');
+            if (text === '버튼을눌러요') return;
             document.execCommand('copy');
             alert(`'${text}' 복사 완료!`);
         }
