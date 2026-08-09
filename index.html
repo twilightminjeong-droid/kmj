@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>골프존 닉네임 생성기 최종본</title>
+    <title>골프존 닉네임 무한생성기 MAX</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -27,8 +27,54 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.6);
         }
         h1 { color: #d4af37; font-size: 24px; margin-bottom: 8px; }
-        p.subtitle { color: #a0aab0; font-size: 14px; margin-bottom: 25px; }
+        p.subtitle { color: #a0aab0; font-size: 14px; margin-bottom: 20px; }
         
+        /* 무한 생성 토글 스위치 박스 */
+        .infinite-toggle-box {
+            background-color: #161d18;
+            border: 1px solid #2e4033;
+            border-radius: 12px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .infinite-label {
+            font-size: 13px;
+            color: #d4af37;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        /* 스위치 커스텀 디자인 */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 46px;
+            height: 24px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #2a342c;
+            transition: .3s;
+            border-radius: 24px;
+            border: 1px solid #3d4a3f;
+        }
+        .slider:before {
+            position: absolute; content: "";
+            height: 18px; width: 18px;
+            left: 2px; bottom: 2px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #2e7d32; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
         .mode-group {
             display: grid; 
             grid-template-columns: repeat(3, 1fr);
@@ -48,6 +94,8 @@
         .btn-mode.random-btn {
             grid-column: span 3;
             background-color: #3d4a3f;
+            font-size: 15px;
+            padding: 12px;
         }
         .btn-mode.random-btn:hover {
             background-color: #d4af37;
@@ -68,22 +116,24 @@
         }
         
         #nicknameDisplay { 
-            font-size: 24px; font-weight: bold; min-height: 36px; color: #ffffff; 
+            font-size: 28px; font-weight: bold; min-height: 40px; color: #ffffff; 
+            letter-spacing: 2px;
         }
 
-        /* 닉네임 생성 시 부드럽게 나타나는 애니메이션 효과 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-5px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes slotSpin {
+            0% { opacity: 0.4; transform: scale(0.95); filter: blur(1px); }
+            50% { opacity: 1; transform: scale(1.02); filter: blur(0px); }
+            100% { opacity: 0.4; transform: scale(0.95); filter: blur(1px); }
         }
-        .fade-in-anim {
-            animation: fadeIn 0.4s ease-out forwards;
+        .slot-anim {
+            animation: slotSpin 0.08s infinite alternate;
+            color: #ffd700 !important;
         }
 
         .btn-copy {
             margin-top: 15px; background-color: transparent; color: #d4af37;
             border: 1px solid #d4af37; padding: 8px 16px; border-radius: 6px;
-            cursor: pointer; font-size: 13px; transition: all 0.2s;
+            cursor: pointer; font-size: 14px; font-weight: bold; transition: all 0.2s;
         }
         .btn-copy:hover { background-color: #d4af37; color: #121813; }
     </style>
@@ -91,66 +141,156 @@
 <body>
     <div class="container">
         <h1>⛳ GOLFZON NICKNAME</h1>
-        <p class="subtitle">나만의 특별한 컨셉으로 골프존 닉네임을 완성하세요!</p>
+        <p class="subtitle">5자 이내, 띄어쓰기 없는 완벽한 닉네임!</p>
 
-        <div class="mode-group">
-            <button class="btn-mode active" onclick="selectMode('humor', this)">😂 유머</button>
-            <button class="btn-mode" onclick="selectMode('luxury', this)">👑 럭셔리</button>
-            <button class="btn-mode" onclick="selectMode('funny', this)">🤪 B급병맛</button>
-            <button class="btn-mode" onclick="selectMode('finance', this)">📈 재테크</button>
-            <button class="btn-mode" onclick="selectMode('animal', this)">🦦 오피스동물</button>
-            <button class="btn-mode" onclick="selectMode('satoori', this)">🗣️ 사투리</button>
-            <button class="btn-mode random-btn" onclick="selectMode('all', this)">🎲 아무거나 랜덤 샷!</button>
+        <!-- 무한 생성 모드 토글 바 -->
+        <div class="infinite-toggle-box">
+            <span class="infinite-label">🔄 무한 슬롯머신 모드</span>
+            <label class="switch">
+                <input type="checkbox" id="infiniteToggle" onchange="toggleInfiniteMode()">
+                <span class="slider"></span>
+            </label>
         </div>
 
-        <button class="btn-generate" onclick="generateNickname()">닉네임 샷! 🏌️‍♂️</button>
+        <div class="mode-group">
+            <button class="btn-mode" onclick="selectMode('pro', this)">😎 세련/프로</button>
+            <button class="btn-mode active" onclick="selectMode('humor', this)">🤣 유머</button>
+            <button class="btn-mode" onclick="selectMode('skilled', this)">🏆 실력자</button>
+            <button class="btn-mode" onclick="selectMode('short', this)">⚡ 짧고강한</button>
+            <button class="btn-mode" onclick="selectMode('luck', this)">🍀 행운</button>
+            <button class="btn-mode" onclick="selectMode('dialect', this)">🗣️ 사투리</button>
+            <button class="btn-mode random-btn" onclick="selectMode('all', this)">🎲 랜덤 생성</button>
+        </div>
+
+        <button class="btn-generate" id="actionBtn" onclick="handleGenerateClick()">닉네임 샷! 🏌️‍♂️</button>
 
         <div class="result-box">
-            <div id="nicknameDisplay">버튼을 눌러주세요</div>
-            <button class="btn-copy" onclick="copyToClipboard()">📋 복사하기</button>
+            <div id="nicknameDisplay">버튼을눌러요</div>
+            <button class="btn-copy" onclick="copyToClipboard()">📋 복사</button>
         </div>
     </div>
 
     <script>
         let currentMode = 'humor';
+        let isInfiniteRunning = false;
+        let infiniteTimer = null;
         
-        // 최종 완성된 데이터베이스 (카테고리별 단어 최적화)
+        // 최근에 생성된 닉네임을 기록하는 메모리 배열 (중복 방지용)
+        let recentNicknames = [];
+        const MAX_HISTORY_SIZE = 30; // 최소 30번 동안 같은 닉네임 반복 금지
+
         const nicknameDB = {
-            humor: { adj: ['OB전문', '양파먹는', '막걸리파워', '해저드수집가', '땅볼전문'], noun: ['백돌이', '골린이', '민폐왕', '알바생', '퍼팅바보'] },
-            luxury: { adj: ['명품스윙', '클럽하우스', '프라이빗', '싱글의', '페어웨이'], noun: ['마스터', '프로', '버디킹', '챔피언', 'VIP'] },
-            funny: { adj: ['연습장만', '지갑털린', '캐디눈물', '주말에만', '풀스윙'], noun: ['타이거우즈선배', '프로지망생', '회장님', '명예회원'] },
-            finance: { adj: ['자산배분', '우상향', '익절하는', '풀매수', '비과세'], noun: ['설계사', '플래너', '주주', '투자자', '개미'] },
-            animal: { adj: ['야근하는', '칼퇴하는', '결재받는', '엑셀치는', '월루하는'], noun: ['수달', '카피바라', '물개', '비버', '사자'] },
-            satoori: { adj: ['단디치는', '억수로잘하는', '깔롱진', '까리한', '쌔리패는'], noun: ['행님', '마!', '쫌!', '언니야', '머스마'] }
+            pro: ['로리맥킬로', '타이거우즈', '존람스윙', '박세리키즈', '스피스퍼트', '켑카파워', '셰플러샷', '디섐보드론', '모리카와'],
+            humor: ['양파요정', '잔디파괴자', '벙커귀신', '오비탈출', '명랑골퍼', '뒤땅장인', '해저드수집', '카트라이더', '골프환자'],
+            skilled: ['버디머신', '이글킬러', '싱글메이커', '언더파', '홀인원맨', '퍼팅마스터', '정교한아이', '아이언맨', '백스핀신'],
+            short: ['독사', '원빳', '투온', '장타', '불도저', '탱크', '송곳', '레이저', '직진', '원샷'],
+            luck: ['럭키골퍼', '네잎클로버', '행운의샷', '럭키세븐', '대박샷', '기적의퍼트', '오운완', '행운만땅'],
+            dialect: [
+                '단디치라', '마풀스윙', '쫌드루와', '우짜꼬',
+                '거시기샷', '아따나샷', '워매버디', '허벌타구',
+                '혼저옵서', '한라산버디', '도르라샷', '무사경',
+                '괜찮아유', '나이스유', '천천히혀', '냅둬유',
+                '마카모여', '강릉독수리', '드래요샷'
+            ]
         };
 
         function selectMode(mode, element) {
             currentMode = mode;
             document.querySelectorAll('.btn-mode').forEach(btn => btn.classList.remove('active'));
             element.classList.add('active');
+            
+            if (isInfiniteRunning) {
+                stopInfinite();
+                startInfinite();
+            }
         }
 
-        function getRandomItem(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+        // 중복 방지 로직이 포함된 스마트 랜덤 추출 함수
+        function getUniqueRandomItem(arr) {
+            let candidate = '';
+            let attempts = 0;
+            
+            // 무한 루프 방지를 위해 최대 시도 횟수를 제한하고 후보를 찾습니다.
+            do {
+                candidate = arr[Math.floor(Math.random() * arr.length)];
+                attempts++;
+                // 만약 전체 아이템 개수가 30개보다 적다면 중복 제한을 배열 크기만큼으로 자동 조절합니다.
+                if (attempts > 50) break; 
+            } while (recentNicknames.includes(candidate));
 
-        function generateNickname() {
+            // 최근 기록 장소에 추가
+            recentNicknames.push(candidate);
+            
+            // 기록이 30개를 넘어가면 가장 오래된 항목을 삭제하여 메모리 관리
+            if (recentNicknames.length > MAX_HISTORY_SIZE) {
+                recentNicknames.shift();
+            }
+
+            return candidate;
+        }
+
+        function toggleInfiniteMode() {
+            const toggle = document.getElementById('infiniteToggle');
+            const actionBtn = document.getElementById('actionBtn');
+            
+            if (toggle.checked) {
+                actionBtn.innerText = "정지 (STOP) ⏹️";
+                actionBtn.style.background = "linear-gradient(135deg, #c62828, #b71c1c)";
+                startInfinite();
+            } else {
+                actionBtn.innerText = "닉네임 샷! 🏌️‍♂️";
+                actionBtn.style.background = "linear-gradient(135deg, #2e7d32, #1b5e20)";
+                stopInfinite();
+            }
+        }
+
+        function handleGenerateClick() {
+            const toggle = document.getElementById('infiniteToggle');
+            if (toggle.checked) {
+                toggle.checked = false;
+                toggleInfiniteMode();
+            } else {
+                generateSingleNickname();
+            }
+        }
+
+        function generateSingleNickname() {
             let activeMode = currentMode === 'all' 
-                ? getRandomItem(['humor', 'luxury', 'funny', 'finance', 'animal', 'satoori']) 
+                ? getUniqueRandomItem(['pro', 'humor', 'skilled', 'short', 'luck', 'dialect']) 
                 : currentMode;
                 
-            const data = nicknameDB[activeMode];
             const displayEl = document.getElementById('nicknameDisplay');
+            displayEl.classList.remove('slot-anim');
             
-            // 애니메이션 재시작을 위한 마법의 코드 (Reflow)
-            displayEl.classList.remove('fade-in-anim');
-            void displayEl.offsetWidth; 
+            const resultArray = nicknameDB[activeMode];
+            displayEl.innerText = getUniqueRandomItem(resultArray);
+        }
+
+        function startInfinite() {
+            isInfiniteRunning = true;
+            const displayEl = document.getElementById('nicknameDisplay');
+            displayEl.classList.add('slot-anim');
             
-            displayEl.innerText = `${getRandomItem(data.adj)} ${getRandomItem(data.noun)}`;
-            displayEl.classList.add('fade-in-anim');
+            infiniteTimer = setInterval(() => {
+                let currentActiveMode = currentMode === 'all' 
+                    ? getUniqueRandomItem(['pro', 'humor', 'skilled', 'short', 'luck', 'dialect']) 
+                    : currentMode;
+                const activeArray = nicknameDB[currentActiveMode];
+                displayEl.innerText = getUniqueRandomItem(activeArray);
+            }, 70);
+        }
+
+        function stopInfinite() {
+            isInfiniteRunning = false;
+            clearInterval(infiniteTimer);
+            const displayEl = document.getElementById('nicknameDisplay');
+            displayEl.classList.remove('slot-anim');
+            generateSingleNickname();
         }
 
         function copyToClipboard() {
             const text = document.getElementById('nicknameDisplay').innerText;
-            if (text === '버튼을 눌러주세요') return alert('먼저 닉네임을 생성해 주세요!');
+            if (text === '버튼을눌러요') return alert('먼저 닉네임을 생성해 주세요!');
             navigator.clipboard.writeText(text).then(() => alert(`'${text}' 복사 완료!`));
         }
     </script>
