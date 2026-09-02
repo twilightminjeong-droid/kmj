@@ -1,1 +1,238 @@
 
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 골프 스윙 분석기 (Golf Swing Analyzer PoC)</title>
+  <!-- MediaPipe Pose CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --panel-bg: #1e293b;
+      --accent: #10b981;
+      --accent-hover: #059669;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-color);
+      color: var(--text);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    header {
+      text-align: center;
+      padding: 8px 0;
+    }
+    header h1 { font-size: 1.5rem; margin-bottom: 4px; color: var(--accent); }
+    header p { font-size: 0.875rem; color: var(--text-muted); }
+
+    .video-container {
+      position: relative;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px dashed var(--border);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 360px;
+      max-height: 560px;
+      transition: border-color 0.2s;
+    }
+    .video-container.drag-over {
+      border-color: var(--accent);
+      background: rgba(16, 185, 129, 0.05);
+    }
+    video {
+      max-width: 100%;
+      max-height: 560px;
+      display: block;
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .placeholder-text {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      text-align: center;
+      padding: 40px;
+      line-height: 1.6;
+    }
+
+    .control-panel {
+      background: var(--panel-bg);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .file-input-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    input[type="file"] {
+      display: none;
+    }
+    .btn {
+      background: var(--panel-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn:hover {
+      background: var(--border);
+    }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+    .playback-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+    .slider-row input[type="range"] {
+      flex: 1;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+    .time-display {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      min-width: 80px;
+    }
+
+    .status-dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+    .status-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    .status-card .label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .status-card .val {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--accent);
+    }
+
+    .guide-box {
+      background: rgba(16, 185, 129, 0.08);
+      border-left: 4px solid var(--accent);
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>⛳ AI 골프 스윙 분석기 (PoC)</h1>
+    <p>스마트폰으로 촬영한 스윙 영상을 올리면 관절 궤적과 척추 각도를 실시간 분석합니다.</p>
+  </header>
+
+  <!-- 영상 영역 (드래그 & 드롭 지원) -->
+  <div class="video-container" id="videoWrapper">
+    <div id="placeholder" class="placeholder-text">
+      아래 <strong>[📁 스윙 영상 선택]</strong> 버튼을 누르거나,<br>
+      여기로 <strong>동영상 파일을 마우스로 끌어다 놓으세요.</strong>
+    </div>
+    <video id="videoElement" playsinline muted crossOrigin="anonymous" style="display: none;"></video>
+    <canvas id="outputCanvas"></canvas>
+  </div>
+
+  <div class="control-panel">
+    <div class="file-input-wrapper">
+      <label class="btn btn-primary" for="videoFile">📁 스윙 영상 선택</label>
+      <input type="file" id="videoFile" accept="video/*">
+      <button class="btn" id="lockHeadBtn">🎯 현재 머리 위치 고정 (스웨이 체크)</button>
+      <button class="btn" id="resetGuideBtn">🔄 가이드 리셋</button>
+    </div>
+
+    <div class="slider-row">
+      <input type="range" id="seekBar" min="0" max="100" value="0" step="0.1" disabled>
+      <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+    </div>
+
+    <div class="playback-controls">
+      <button class="btn btn-primary" id="playBtn" disabled>▶ 재생</button>
+      <button class="btn" id="prevFrameBtn" disabled>◀ 1프레임 뒤로</button>
+      <button class="btn" id="nextFrameBtn" disabled>1프레임 앞으로 ▶</button>
+      
+      <span style="font-size: 0.85rem; color: var(--text-muted); margin-left: 8px;">배속:</span>
+      <button class="btn speed-btn" data-speed="0.25">0.25x</button>
+      <button class="btn speed-btn" data-speed="0.5">0.5x</button>
+      <button class="btn speed-btn" data-speed="1.0" style="border-color: var(--accent);">1.0x</button>
+    </div>
+
+    <div class="status-dashboard">
+      <div class="status-card">
+        <div class="label">척추 기울기 (수직 기준)</div>
+        <div class="val" id="spineAngleDisplay">-</div>
+      </div>
+      <div class="status-card">
+        <div class="label">어깨 기울기 (Shoulder Tilt)</div>
+        <div class="val" id="shoulderTiltDisplay">-</div>
+      </div>
+      <div class="status-card">
+        <div class="label">골반 기울기 (Hip Tilt)</div>
+        <div class="val" id="hipTiltDisplay">-</div>
+      </div>
+      <div class="status-card">
+        <div class="label">헤드업 / 스웨
